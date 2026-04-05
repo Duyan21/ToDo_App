@@ -2,6 +2,8 @@
 
 A simple Flask-based todo application with user authentication, task management, and reminder support.
 
+<img width="1516" height="1429" alt="screencapture-127-0-0-1-5000-tasks-2026-04-05-20_16_08" src="https://github.com/user-attachments/assets/76a4878d-5e47-4468-9641-ef24dddbb47c" />
+
 ## Project structure
 
 - `todo_app/` - main Flask application
