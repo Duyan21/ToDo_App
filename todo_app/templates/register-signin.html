@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>Đăng ký</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script src="{{ url_for('static', filename='js/auth.js') }}"></script>
+  <style>
+    .form-container {
+      display: none;
+    }
+
+    .form-container.active {
+      display: block;
+    }
+  </style>
+</head>
+
+<body>
+  <button id="show-register">Đăng ký</button>
+  <button id="show-login">Đăng nhập</button>
+
+  <div id="register-form" class="form-container active">
+    <h2>Đăng ký</h2>
+    <form>
+      <input type="text" id="reg-name" placeholder="Tên">
+      <br><br>
+      <input type="email" id="reg-email" placeholder="Email">
+      <br><br>
+      <input type="password" id="reg-password" placeholder="Mật khẩu">
+      <br><br>
+      <button type="submit">Đăng ký</button>
+    </form>
+  </div>
+
+  <div id="login-form" class="form-container">
+    <h2>Đăng nhập</h2>
+    <form>
+      <input type="email" id="login-email" placeholder="Email">
+      <br><br>
+      <input type="password" id="login-password" placeholder="Mật khẩu">
+      <br><br>
+      <button type="submit">Đăng nhập</button>
+    </form>
+  </div>
+</body>
+
+</html>

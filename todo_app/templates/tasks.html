@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Dashboard - Tạo Task</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+
+<body>
+    <!-- Header with logo, user name, import/export -->
+    <div class="header">
+        <div class="header-left">
+            <div class="logo">📝 TaskManager</div>
+        </div>
+        <div class="header-right">
+            <span class="user-name">👤 {{ user.name if user else 'User' }}</span>
+            <button id="logout-btn" class="header-btn logout">🚪 Logout</button>
+        </div>
+    </div>
+
+    <!-- Add task button section -->
+    <div class="action-bar">
+        <button id="add-task-btn" class="add-task-btn">+ Thêm công việc mới</button>
+    </div>
+
+    <!-- Filter buttons section -->
+    <div class="filter-section">
+        <div id="filter-list" class="filter-list">
+            <button class="filter-btn active" data-filter="all">Tất cả</button>
+            <button class="filter-btn" data-filter="pending">Đang làm</button>
+            <button class="filter-btn" data-filter="overdue">Quá hạn</button>
+            <button class="filter-btn" data-filter="completed">Hoàn thành</button>
+        </div>
+    </div>
+
+    <!-- Reminder panel -->
+    <div id="reminder-panel" class="reminder-panel">
+        <h3>Nhắc nhở</h3>
+        <div id="reminder-list"></div>
+    </div>
+
+    <!-- Modal form -->
+    <div id="task-modal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <form id="task-form">
+                <h2 id="form-title">Tạo Task mới</h2>
+                <input type="text" id="task-title" placeholder="Tiêu đề task" required>
+                <textarea id="task-desc" placeholder="Mô tả task"></textarea>
+                <input type="date" id="task-deadline">
+                <select id="task-priority">a
+                    <option value="Low">Low</option>
+                    <option value="Medium">Medium</option>
+                    <option value="High">High</option>
+                </select>
+                <select id="task-reminder">
+                    <option value="0">Không nhắc nhở</option>
+                    <option value="15">15 phút trước</option>
+                    <option value="30">30 phút trước</option>
+                    <option value="60">1 giờ trước</option>
+                    <option value="1440">1 ngày trước</option>
+                </select>
+                <div class="form-actions">
+                    <button type="submit" class="btn-save">Tạo Task</button>
+                    <button type="button" id="cancel-btn" class="btn-cancel">Hủy</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Task list -->
+    <div id="task-list">
+        <div id="tasks-container">
+            {% for task in tasks %}
+            <div class="task">
+                <div class="task-header">
+                    <label>
+                        <input type="checkbox" class="task-status" data-task-id="{{ task.id }}" {% if
+                            task.status=="Completed" %}checked{% endif %}>
+                        Đã hoàn thành
+                    </label>
+                    <div class="task-actions">
+                        <button class="btn-edit" data-task-id="{{ task.id }}">✏️ Sửa</button>
+                        <button class="btn-delete" data-task-id="{{ task.id }}">🗑️ Xóa</button>
+                    </div>
+                </div>
+                <h3 class="task-title">{{ task.title }}</h3>
+                <p class="task-desc">{{ task.description }}</p>
+                <p class="task-deadline">Deadline: {{ task.deadline }}</p>
+                <p class="task-priority">Priority: {{ task.priority }}</p>
+                {% if task.reminder_minutes %}
+                <p class="task-reminder">Nhắc nhở: {{ task.reminder_minutes }} phút trước</p>
+                {% endif %}
+            </div>
+            {% endfor %} 
+            {% if not tasks %}
+            <p>Chưa có task nào.</p>
+            {% endif %}
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/task.js') }}"></script>
+</body>
+
+</html>
