@@ -50,10 +50,18 @@ python -m venv venv
 venv\Scripts\Activate.ps1
 ```
 
-3. Install dependencies:
+3. Installation Instructions
+
+To install the required Python packages for this project, run the following command:
 
 ```bash
-pip install flask sqlalchemy
+pip install -r requirements.txt
+```
+
+If you want to install additional packages, you can use the following command (replace `flask` with the desired package name):
+
+```bash
+npm install flask
 ```
 
 4. Run the application:
@@ -66,7 +74,7 @@ python run.py
 5. Open the app in your browser:
 
 ```
-http://127.0.0.1:5000/
+http://127.0.0.1:5000/register-signin
 ```
 
 ## Notes
