@@ -1,27 +1,29 @@
 $(document).ready(function () {
   // Load tasks on page load
-  loadTasks('all');
+  if (window.location.pathname === '/tasks') {
+    loadTasks('all');
+  }
 
   // Logout button
-  $('#logout-btn').click(function() {
+  $('#logout-btn').click(function () {
     if (confirm('Bạn có chắc chắn muốn đăng xuất?')) {
       $.ajax({
         url: "/api/logout",
         type: "POST",
-        success: function() {
-          window.location.href = "/register-signin";
+        success: function () {
+          window.location.href = "/signin";
         }
       });
     }
   });
 
   // Import button
-  $('#import-btn').click(function() {
+  $('#import-btn').click(function () {
     alert('Tính năng import sẽ được cập nhật sớm');
   });
 
   // Export button
-  $('#export-btn').click(function() {
+  $('#export-btn').click(function () {
     alert('Tính năng export CSV sẽ được cập nhật sớm');
   });
 
@@ -32,12 +34,12 @@ $(document).ready(function () {
   var closeSpan = $('.close');
 
   // Open modal
-  addBtn.click(function() {
+  addBtn.click(function () {
     modal.show();
   });
 
   // Close modal
-  cancelBtn.click(function() {
+  cancelBtn.click(function () {
     modal.hide();
     $("#task-form")[0].reset();
     $("#task-form").removeData("edit-id");
@@ -45,7 +47,7 @@ $(document).ready(function () {
     $(".btn-save").text("Tạo Task");
   });
 
-  closeSpan.click(function() {
+  closeSpan.click(function () {
     modal.hide();
     $("#task-form")[0].reset();
     $("#task-form").removeData("edit-id");
@@ -54,7 +56,7 @@ $(document).ready(function () {
   });
 
   // Close modal when clicking outside
-  $(window).click(function(event) {
+  $(window).click(function (event) {
     if (event.target == modal[0]) {
       modal.hide();
       $("#task-form")[0].reset();
@@ -69,7 +71,7 @@ $(document).ready(function () {
     var taskId = $("#task-form").data("edit-id");
     var method = taskId ? "PATCH" : "POST";
     var url = taskId ? "/api/task/" + taskId : "/api/task";
-    
+
     $.ajax({
       url: url,
       type: method,
@@ -97,7 +99,7 @@ $(document).ready(function () {
   });
 
   // Handle edit button
-  $(document).on('click', '.btn-edit', function() {
+  $(document).on('click', '.btn-edit', function () {
     var taskId = $(this).data("task-id");
     var taskElement = $(this).closest('.task');
     var title = taskElement.find('h3').text();
@@ -106,42 +108,42 @@ $(document).ready(function () {
     var priorityText = taskElement.find('p:eq(2)').text().replace('Priority: ', '');
     var reminderText = taskElement.find('p:eq(3)').text();
     var reminderMinutes = 0;
-    
+
     if (reminderText) {
       var match = reminderText.match(/(\d+) phút trước/);
       if (match) {
         reminderMinutes = match[1];
       }
     }
-    
+
     // Populate form
     $("#task-title").val(title);
     $("#task-desc").val(description);
     $("#task-deadline").val(deadlineText);
     $("#task-priority").val(priorityText);
     $("#task-reminder").val(reminderMinutes);
-    
+
     // Mark as edit mode
     $("#task-form").data("edit-id", taskId);
     $("#form-title").text("Sửa Task");
     $(".btn-save").text("Lưu Task");
-    
+
     // Show modal
     modal.show();
   });
 
   // Handle delete button
-  $(document).on('click', '.btn-delete', function() {
+  $(document).on('click', '.btn-delete', function () {
     if (confirm('Bạn có chắc chắn muốn xóa task này?')) {
       var taskId = $(this).data("task-id");
       $.ajax({
         url: "/api/task/" + taskId,
         type: "DELETE",
-        success: function(response) {
+        success: function (response) {
           alert(response.message);
           loadTasks($('.filter-btn.active').data('filter') || 'all');
         },
-        error: function(xhr) {
+        error: function (xhr) {
           alert("Có lỗi xóa task: " + xhr.responseJSON.error);
         }
       });
@@ -205,7 +207,7 @@ function renderReminders(tasks) {
   list.empty();
 
   var now = new Date();
-  var reminders = tasks.filter(function(task) {
+  var reminders = tasks.filter(function (task) {
     if (!task.deadline || !task.reminder_minutes || task.status === 'Completed') return false;
     var deadline = new Date(task.deadline);
     var reminderTime = new Date(deadline.getTime() - task.reminder_minutes * 60000);
@@ -217,7 +219,7 @@ function renderReminders(tasks) {
     return;
   }
 
-  reminders.forEach(function(task) {
+  reminders.forEach(function (task) {
     var deadline = new Date(task.deadline).toLocaleString();
     list.append('<div class="reminder-item">' +
       '<strong>' + task.title + '</strong>' +
@@ -263,4 +265,3 @@ function renderTasks(tasks) {
     container.append(taskHtml);
   });
 }
-

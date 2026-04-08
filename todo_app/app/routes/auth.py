@@ -4,9 +4,15 @@ from werkzeug.security import check_password_hash, generate_password_hash
 
 auth_bp = Blueprint('auth', __name__, template_folder='../../templates')
 
-@auth_bp.route("/register-signin")
+@auth_bp.route("/register")
 def register_page():
-    return render_template("register-signin.html")
+    return render_template("register.html")
+
+# vào /signin hoặc / sẽ hiển thị trang đăng nhập
+@auth_bp.route("/")
+@auth_bp.route("/signin")
+def signin_page():
+    return render_template("signin.html")
 
 @auth_bp.route('/api/register', methods=['POST'])
 def register():
