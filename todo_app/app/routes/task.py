@@ -1,5 +1,8 @@
 import datetime
 
+from app.utils.decorators.check_execute_time import check_execution_time
+from app.utils.decorators.logging import log_api_decorator
+
 now = datetime.datetime.now(datetime.timezone.utc)
 
 
@@ -21,6 +24,8 @@ def task_page():
 
 
 @task_bp.route('/api/task', methods=['POST'])
+@check_execution_time
+@log_api_decorator
 def create_task():
     user_id = session.get('user_id')
     if not user_id:
