@@ -1,12 +1,12 @@
 $(document).ready(function () {
-  $("#show-register").click(function () {
-    $("#register-form").addClass("active");
-    $("#login-form").removeClass("active");
+  $("#show-register").click(function (e) {
+    window.location.href = "/register";
+    e.preventDefault();
   });
 
-  $("#show-login").click(function () {
-    $("#login-form").addClass("active");
-    $("#register-form").removeClass("active");
+  $("#show-login").click(function (e) {
+    window.location.href = "/signin";
+    e.preventDefault();
   });
 
   $("#register-form").submit(function (e) {
@@ -22,6 +22,8 @@ $(document).ready(function () {
       }),
       success: function (response) {
         alert(response.message);
+        window.location.href = "/signin";
+        e.preventDefault();
       },
       error: function (xhr) {
         alert(xhr.responseJSON && xhr.responseJSON.error ? xhr.responseJSON.error : 'Đăng ký không thành công');

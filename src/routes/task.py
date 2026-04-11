@@ -1,13 +1,13 @@
 import datetime
 
-from app.utils.decorators.check_execute_time import check_execution_time
-from app.utils.decorators.logging import log_api_decorator
+from src.utils.decorators.check_execute_time import check_execution_time
+from src.utils.decorators.logging import log_api_decorator
 
 now = datetime.datetime.now(datetime.timezone.utc)
 
 
 from flask import Blueprint, redirect, render_template, request, jsonify, session
-from app.models import db, Task, User
+from src.database.models import db, Task, User
 
 task_bp = Blueprint('task', __name__, template_folder='../../templates')
 

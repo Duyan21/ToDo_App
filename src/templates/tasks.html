@@ -1,13 +1,10 @@
-<!DOCTYPE html>
-<html>
+{% extends "index.html" %}
 
-<head>
-    <title>Dashboard - Tạo Task</title>
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
-</head>
+{% block title %}Tasks{% endblock %}
 
-<body>
+{% block content %}
+
+<div>
     <!-- Header with logo, user name, import/export -->
     <div class="header">
         <div class="header-left">
@@ -19,9 +16,9 @@
         </div>
     </div>
 
-    <!-- Add task button section -->
-    <div class="action-bar">
-        <button id="add-task-btn" class="add-task-btn">+ Thêm công việc mới</button>
+    <div class="d-flex justify-content-center gap-3 action-bar">
+        <button id="add-task-btn" class="add-task-btn">Add task</button>
+        <button id="import-task-btn" class="add-task-btn">Import tasks</button>
     </div>
 
     <!-- Filter buttons section -->
@@ -93,14 +90,12 @@
                 <p class="task-reminder">Nhắc nhở: {{ task.reminder_minutes }} phút trước</p>
                 {% endif %}
             </div>
-            {% endfor %} 
+            {% endfor %}
             {% if not tasks %}
             <p>Chưa có task nào.</p>
             {% endif %}
         </div>
     </div>
+</div>
 
-    <script src="{{ url_for('static', filename='js/task.js') }}"></script>
-</body>
-
-</html>
+{% endblock %}

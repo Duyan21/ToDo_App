@@ -1,7 +1,7 @@
 from flask import Flask
-from app.models import db
-from app.routes.auth import auth_bp
-from app.routes.task import task_bp
+from src.routes.auth import auth_bp
+from src.routes.task import task_bp
+from src.database.models import db
 
 def create_app():
     app = Flask(
