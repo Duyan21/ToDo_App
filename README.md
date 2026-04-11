@@ -6,18 +6,23 @@ A simple Flask-based todo application with user authentication, task management,
 
 ## Project structure
 
-- `todo_app/` - main Flask application
-  - `run.py` - Flask app entry point
+- `src/` - main Flask application
   - `app/` - application package
     - `__init__.py` - app factory and blueprint registration
-    - `models.py` - SQLAlchemy models
-    - `routes/` - Flask route handlers
-      - `auth.py` - registration, login, logout
-      - `task.py` - task CRUD and filters
+    - `app.py` - Flask app entry point
+  - `database/` - SQLAlchemy models
+    - `models.py` - database models
+  - `routes/` - Flask route handlers
+    - `auth.py` - registration, login, logout
+    - `task.py` - task CRUD and filters
   - `templates/` - HTML templates
   - `static/` - CSS and JavaScript assets
+    - `css/` - stylesheets
+    - `js/` - JavaScript files
 - `venv/` - local Python virtual environment (ignored)
-- `mydb.sqlite` - local SQLite database file (ignored)
+- `instance/` - instance folder for configurations (ignored)
+- `requirements.txt` - Python dependencies
+- `pytest.ini` - pytest configuration file
 
 ## Features
 
@@ -67,8 +72,7 @@ npm install flask
 4. Run the application:
 
 ```bash
-cd todo_app
-python run.py
+python main.py
 ```
 
 5. Open the app in your browser:

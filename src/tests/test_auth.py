@@ -1,6 +1,6 @@
 import pytest
-from todo_app.app import create_app, db
-from app.models import User
+from src.app import create_app
+from src.database import db, User
 
 @pytest.fixture
 def client():

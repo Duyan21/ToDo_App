@@ -33,5 +33,5 @@ jobs:
 
       - name: Run tests
         run: |
-          export PYTHONPATH=$PYTHONPATH:$(pwd)/todo_app
-          pytest
+          export PYTHONPATH=$PYTHONPATH:$(pwd)/src
+          pytest --maxfail=5 --disable-warnings

@@ -1,5 +1,5 @@
 from flask import Blueprint, render_template, request, jsonify, session
-from app.models import db, User
+from src.database.models import db, User
 from werkzeug.security import check_password_hash, generate_password_hash
 
 auth_bp = Blueprint('auth', __name__, template_folder='../../templates')
