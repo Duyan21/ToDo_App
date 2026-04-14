@@ -1,6 +1,9 @@
 from flask import Blueprint, render_template, request, jsonify, session
 from src.database.models import db, User
 from werkzeug.security import check_password_hash, generate_password_hash
+from src.utils.decorators.validate_input import validate_input
+
+from src.utils.decorators.require_auth import require_auth
 
 auth_bp = Blueprint('auth', __name__, template_folder='../../templates')
 
@@ -15,15 +18,15 @@ def signin_page():
     return render_template("signin.html")
 
 @auth_bp.route('/api/register', methods=['POST'])
+@validate_input(
+    required_fields=['name', 'email', 'password'],
+    field_types={'name': str, 'email': str, 'password': str}
+)
 def register():
     data = request.get_json()
     name = data.get('name')
     email = data.get('email')
     password = data.get('password')
-
-    # Validation
-    if not name or not email or not password:
-        return jsonify({"error": "Tên, email và mật khẩu không được để trống"}), 400
 
     if User.query.filter_by(email=email).first():
         return jsonify({"error": "Email đã tồn tại"}), 400
@@ -39,14 +42,14 @@ def register():
     return jsonify({"message": "Đăng ký thành công"})
 
 @auth_bp.route('/api/signin', methods=['POST'])
+@validate_input(
+    required_fields=['email', 'password'],
+    field_types={'email': str, 'password': str}
+)
 def signin():
     data = request.get_json()
     email = data.get('email')
     password = data.get('password')
-
-    # Validation
-    if not email or not password:
-        return jsonify({"error": "Email và mật khẩu không được để trống"}), 400
 
     user = User.query.filter_by(email=email).first()
     if not user or not check_password_hash(user.password_hash, password):
@@ -55,8 +58,8 @@ def signin():
     session['user_id'] = user.id
     return jsonify({"message": "Đăng nhập thành công"})
 
-
 @auth_bp.route('/api/logout', methods=['POST'])
+@require_auth
 def logout():
     session.clear()
     return jsonify({"message": "Đã đăng xuất"})
