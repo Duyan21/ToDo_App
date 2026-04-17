@@ -1,15 +1,25 @@
 import logging
+from functools import wraps
 
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+logger = logging.getLogger(__name__)
+
 
 def log_api_decorator(func):
+    @wraps(func)
     def wrapper_function(*args, **kwargs):
-        logging.info(f"Calling API: {func.__name__}")
+        logger.info(
+            "Begin %s: module=%s args=%s kwargs=%s",
+            func.__name__, func.__module__, args, kwargs
+        )
         try:
             response = func(*args, **kwargs)
-            logging.info(f"API {func.__name__} called successfully with status: {response.status_code}")
+            status = getattr(response, 'status_code', None)
+            logger.info(
+                "End %s: status=%s response_type=%s",
+                func.__name__, status, type(response).__name__
+            )
             return response
-        except Exception as e:
-            logging.error(f"Error while calling API {func.__name__}: {e}")
+        except Exception:
+            logger.exception("Error in %s", func.__name__)
             raise
     return wrapper_function

@@ -2,6 +2,7 @@ import datetime
 
 from src.utils.decorators.check_execute_time import check_execution_time
 from src.utils.decorators.logging import log_api_decorator
+from src.utils.decorators.require_auth import require_auth
 
 now = datetime.datetime.now(datetime.timezone.utc)
 
@@ -16,7 +17,7 @@ task_bp = Blueprint('task', __name__, template_folder='../../templates')
 def task_page():
     user_id = session.get('user_id')
     if not user_id:
-        return redirect("/register-signin")
+        return redirect("/")
 
     user = User.query.get(user_id)
     tasks = Task.query.filter_by(user_id=user_id).all()
@@ -26,10 +27,9 @@ def task_page():
 @task_bp.route('/api/task', methods=['POST'])
 @check_execution_time
 @log_api_decorator
+@require_auth
 def create_task():
     user_id = session.get('user_id')
-    if not user_id:
-        return jsonify({"error": "Bạn cần đăng nhập để tạo task"}), 401
 
     data = request.get_json()
     title = data.get('title')
@@ -56,10 +56,9 @@ def create_task():
 
 
 @task_bp.route('/api/task/<int:task_id>', methods=['PUT'])
+@require_auth
 def update_task_status(task_id):
     user_id = session.get('user_id')
-    if not user_id:
-        return jsonify({"error": "Bạn cần đăng nhập"}), 401
 
     task = Task.query.filter_by(id=task_id, user_id=user_id).first()
     if not task:
@@ -80,10 +79,9 @@ def update_task_status(task_id):
 
 
 @task_bp.route('/api/tasks', methods=['GET'])
+@require_auth
 def get_tasks():
     user_id = session.get('user_id')
-    if not user_id:
-        return jsonify({"error": "Bạn cần đăng nhập"}), 401
 
     filter_type = request.args.get('filter', 'all')
     query = Task.query.filter_by(user_id=user_id)
@@ -113,10 +111,9 @@ def get_tasks():
 
 
 @task_bp.route('/api/task/<int:task_id>', methods=['PATCH'])
+@require_auth
 def edit_task(task_id):
     user_id = session.get('user_id')
-    if not user_id:
-        return jsonify({"error": "Bạn cần đăng nhập"}), 401
 
     task = Task.query.filter_by(id=task_id, user_id=user_id).first()
     if not task:
@@ -140,10 +137,9 @@ def edit_task(task_id):
 
 
 @task_bp.route('/api/task/<int:task_id>', methods=['DELETE'])
+@require_auth
 def delete_task(task_id):
     user_id = session.get('user_id')
-    if not user_id:
-        return jsonify({"error": "Bạn cần đăng nhập"}), 401
 
     task = Task.query.filter_by(id=task_id, user_id=user_id).first()
     if not task:
