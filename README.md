@@ -19,6 +19,7 @@ A simple Flask-based todo application with user authentication, task management,
   - `static/` - CSS and JavaScript assets
     - `css/` - stylesheets
     - `js/` - JavaScript files
+  - `tests/` - test files
 - `venv/` - local Python virtual environment (ignored)
 - `instance/` - instance folder for configurations (ignored)
 - `requirements.txt` - Python dependencies
