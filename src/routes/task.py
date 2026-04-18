@@ -3,10 +3,6 @@ import datetime
 from src.utils.decorators.check_execute_time import check_execution_time
 from src.utils.decorators.logging import log_api_decorator
 from src.utils.decorators.require_auth import require_auth
-
-now = datetime.datetime.now(datetime.timezone.utc)
-
-
 from flask import Blueprint, redirect, render_template, request, jsonify, session
 from src.database.models import db, Task, User
 
@@ -21,6 +17,13 @@ def task_page():
 
     user = User.query.get(user_id)
     tasks = Task.query.filter_by(user_id=user_id).all()
+    priority_order = {
+        "High": 0,
+        "Medium": 1,
+        "Low": 2
+    }
+    tasks = sorted(tasks, key=lambda t: (
+        priority_order[t.priority], t.created_at))
     return render_template("tasks.html", tasks=tasks, user=user)
 
 
@@ -86,26 +89,33 @@ def get_tasks():
     filter_type = request.args.get('filter', 'all')
     query = Task.query.filter_by(user_id=user_id)
 
-    if filter_type == 'completed':
-        query = query.filter_by(status='Completed')
-    elif filter_type == 'pending':
-        query = query.filter_by(status='Pending')
-    elif filter_type == 'overdue':
-        now = datetime.datetime.now(datetime.timezone.utc)
-        query = query.filter(Task.deadline < now, Task.status == 'Pending')
+    filters = {
+        'completed': lambda q: q.filter_by(status='Completed'),
+        'pending': lambda q: q.filter_by(status='Pending'),
+        'overdue': lambda q: q.filter(Task.deadline < datetime.datetime.now(datetime.timezone.utc), Task.status == 'Pending')
+    }
+
+    query = filters.get(filter_type, lambda q: q)(query)
 
     tasks = query.all()
-    tasks_data = []
-    for task in tasks:
-        tasks_data.append({
-            'id': task.id,
-            'title': task.title,
-            'description': task.description,
-            'deadline': task.deadline.isoformat() if task.deadline else None,
-            'priority': task.priority,
-            'status': task.status,
-            'reminder_minutes': task.reminder_minutes
-        })
+
+    priority_order = {
+        'High': 0, 
+        'Medium': 1, 
+        'Low': 2
+        }
+    tasks = sorted(tasks, key=lambda t: (
+        priority_order.get(t.priority), t.created_at))
+
+    tasks_data = list(map(lambda t: {
+        'id': t.id,
+        'title': t.title,
+        'description': t.description,
+        'deadline': t.deadline.isoformat() if t.deadline else None,
+        'priority': t.priority,
+        'status': t.status,
+        'reminder_minutes': t.reminder_minutes
+    }, tasks))
 
     return jsonify({'tasks': tasks_data})
 
@@ -120,13 +130,14 @@ def edit_task(task_id):
         return jsonify({"error": "Task không tồn tại"}), 404
 
     data = request.get_json()
-    
+
     if 'title' in data:
         task.title = data['title']
     if 'description' in data:
         task.description = data['description']
     if 'deadline' in data:
-        task.deadline = datetime.datetime.strptime(data['deadline'], "%Y-%m-%d") if data['deadline'] else None
+        task.deadline = datetime.datetime.strptime(
+            data['deadline'], "%Y-%m-%d") if data['deadline'] else None
     if 'priority' in data:
         task.priority = data['priority']
     if 'reminder_minutes' in data:
@@ -148,5 +159,3 @@ def delete_task(task_id):
     db.session.delete(task)
     db.session.commit()
     return jsonify({"message": "Task deleted successfully"})
-
-
