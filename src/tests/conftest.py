@@ -6,11 +6,12 @@ from werkzeug.security import generate_password_hash
 
 @pytest.fixture
 def app():
-    """Create and configure a test Flask app"""
-    app = create_app()
-    app.config['TESTING'] = True
-    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///:memory:'
-    
+    app = create_app({
+        'TESTING': True,
+        'SQLALCHEMY_DATABASE_URI': 'sqlite:///:memory:',
+        'SQLALCHEMY_TRACK_MODIFICATIONS': False
+    })
+
     with app.app_context():
         db.create_all()
         yield app

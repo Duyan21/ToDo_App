@@ -1,5 +1,7 @@
 from src.app import create_app
 from src.database import db
+from dotenv import load_dotenv
+load_dotenv()
 
 app = create_app()
 

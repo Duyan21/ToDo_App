@@ -12,6 +12,7 @@ A simple Flask-based todo application with user authentication, task management,
     - `app.py` - Flask app entry point
   - `database/` - SQLAlchemy models
     - `models.py` - database models
+    - `schema.sql` - SQL Server database schema
   - `routes/` - Flask route handlers
     - `auth.py` - registration, login, logout
     - `task.py` - task CRUD and filters
@@ -70,13 +71,27 @@ If you want to install additional packages, you can use the following command (r
 npm install flask
 ```
 
-4. Run the application:
+4. Setup database (SQL Server):
+ - Open SQL Server Management Studio (SSMS)
+ - Open file:
+    - database/schema.sql
+    - Click Execute to create database and tables
+
+5. Create .env file in the root folder:
+ - DB_HOST=localhost\SQLEXPRESS
+ - DB_NAME=todo_app_db
+ - DB_DRIVER={ODBC Driver 17 for SQL Server}
+
+This project uses Windows Authentication, so no username/password is required.
+Make sure your Windows account has access to SQL Server.
+
+6. Run the application:
 
 ```bash
 python main.py
 ```
 
-5. Open the app in your browser:
+7. Open the app in your browser:
 
 ```
 http://127.0.0.1:5000/register-signin
