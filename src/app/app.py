@@ -1,5 +1,7 @@
 import logging
-from flask import Flask
+import os
+from flask import Flask, app
+import urllib
 from src.routes.auth import auth_bp
 from src.routes.task import task_bp
 from src.database.models import db
@@ -17,7 +19,18 @@ def create_app():
         static_folder='../static'
     )
     app.secret_key = 'replace-with-a-secure-secret'
-    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///mydb.sqlite'
+    DB_HOST = os.getenv("DB_HOST")
+    DB_NAME = os.getenv("DB_NAME")
+    DB_DRIVER = os.getenv("DB_DRIVER")   
+
+    params = urllib.parse.quote_plus(
+    f"DRIVER={DB_DRIVER};"
+    f"SERVER={DB_HOST};"
+    f"DATABASE={DB_NAME};"
+    "Trusted_Connection=yes;"
+    )
+
+    app.config["SQLALCHEMY_DATABASE_URI"] = f"mssql+pyodbc:///?odbc_connect={params}"
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
     db.init_app(app)
 
