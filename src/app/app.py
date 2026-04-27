@@ -6,7 +6,7 @@ from src.routes.auth import auth_bp
 from src.routes.task import task_bp
 from src.database.models import db
 
-def create_app():
+def create_app(test_config=None):
     if not logging.getLogger().handlers:
         logging.basicConfig(
             level=logging.INFO,
@@ -19,18 +19,21 @@ def create_app():
         static_folder='../static'
     )
     app.secret_key = 'replace-with-a-secure-secret'
-    DB_HOST = os.getenv("DB_HOST")
-    DB_NAME = os.getenv("DB_NAME")
-    DB_DRIVER = os.getenv("DB_DRIVER")   
+    if test_config:
+        app.config.update(test_config)
+    else:
+        DB_HOST = os.getenv("DB_HOST")
+        DB_NAME = os.getenv("DB_NAME")
+        DB_DRIVER = os.getenv("DB_DRIVER")   
 
-    params = urllib.parse.quote_plus(
-    f"DRIVER={DB_DRIVER};"
-    f"SERVER={DB_HOST};"
-    f"DATABASE={DB_NAME};"
-    "Trusted_Connection=yes;"
-    )
+        params = urllib.parse.quote_plus(
+        f"DRIVER={DB_DRIVER};"
+        f"SERVER={DB_HOST};"
+        f"DATABASE={DB_NAME};"
+        "Trusted_Connection=yes;"
+        )
 
-    app.config["SQLALCHEMY_DATABASE_URI"] = f"mssql+pyodbc:///?odbc_connect={params}"
+        app.config["SQLALCHEMY_DATABASE_URI"] = f"mssql+pyodbc:///?odbc_connect={params}"
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
     db.init_app(app)
 
