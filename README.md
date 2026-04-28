@@ -1,6 +1,6 @@
 # Todo App
 
-A simple Flask-based todo application with user authentication, task management, and reminder support.
+A simple Flask-based todo application with user authentication, task management, and reminder & notification support.
 
 <img width="1516" height="1429" alt="screencapture-127-0-0-1-5000-tasks-2026-04-05-20_16_08" src="https://github.com/user-attachments/assets/76a4878d-5e47-4468-9641-ef24dddbb47c" />
 
@@ -15,7 +15,9 @@ A simple Flask-based todo application with user authentication, task management,
     - `schema.sql` - SQL Server database schema
   - `routes/` - Flask route handlers
     - `auth.py` - registration, login, logout
-    - `task.py` - task CRUD and filters
+    - `task.py` - task CRUD, filters, notifications
+  - `jobs/` - background jobs (scheduler)
+    - `scheduler.py` - reminder & overdue processing
   - `templates/` - HTML templates
   - `static/` - CSS and JavaScript assets
     - `css/` - stylesheets
@@ -31,7 +33,9 @@ A simple Flask-based todo application with user authentication, task management,
 - User registration and login
 - Create, edit, delete tasks
 - Set task deadline and priority
-- Add reminders for tasks
+- Add reminders before deadline
+- Automatic overdue detection
+- Notification system (no duplicate, status-aware)
 - Task status toggling and task filtering
 
 ## Requirements
@@ -54,7 +58,7 @@ cd project_1
 Windows:
 ```powershell
 python -m venv venv
-venv\Scripts\Activate.ps1
+venv\Scripts\activate
 ```
 
 3. Installation Instructions
@@ -65,16 +69,10 @@ To install the required Python packages for this project, run the following comm
 pip install -r requirements.txt
 ```
 
-If you want to install additional packages, you can use the following command (replace `flask` with the desired package name):
-
-```bash
-npm install flask
-```
-
 4. Setup database (SQL Server):
  - Open SQL Server Management Studio (SSMS)
  - Open file:
-    - database/schema.sql
+    - src/database/schema.sql
     - Click Execute to create database and tables
 
 5. Create .env file in the root folder:
@@ -94,13 +92,15 @@ python main.py
 7. Open the app in your browser:
 
 ```
-http://127.0.0.1:5000/register-signin
+http://127.0.0.1:5000
 ```
 
 ## Notes
 
-- The local SQLite database file is ignored by `.gitignore`.
-- If you add more dependencies, create a `requirements.txt` file with `pip freeze > requirements.txt`.
+- Do not use `npm install flask`, use `pip install`
+- The local SQLite database file is used for testing and is ignored by `.gitignore`
+- Background jobs are handled in `jobs/`
+- Datetime handling uses `datetime.now()` consistently
 
 ## License
 

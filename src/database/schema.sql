@@ -11,7 +11,7 @@ USE todo_app_db;
 GO
 
 -- =========================
--- DROP TABLES (nếu tồn tại)
+-- DROP TABLES (order đúng để tránh lỗi FK)
 -- =========================
 IF OBJECT_ID('Notifications', 'U') IS NOT NULL DROP TABLE Notifications;
 IF OBJECT_ID('Files', 'U') IS NOT NULL DROP TABLE Files;
@@ -42,9 +42,12 @@ CREATE TABLE Tasks (
     priority NVARCHAR(20),
     status NVARCHAR(50),
     reminder_minutes INT DEFAULT 0,
+    overdue_notified BIT DEFAULT 0,
     created_at DATETIME DEFAULT GETDATE(),
     completed_at DATETIME,
-    FOREIGN KEY (user_id) REFERENCES Users(id)
+
+    CONSTRAINT FK_Task_User
+        FOREIGN KEY (user_id) REFERENCES Users(id)
 );
 
 -- =========================
@@ -52,12 +55,25 @@ CREATE TABLE Tasks (
 -- =========================
 CREATE TABLE Notifications (
     id INT IDENTITY(1,1) PRIMARY KEY,
+
     task_id INT,
     user_id INT,
+
+    type NVARCHAR(50),
     message NVARCHAR(200),
+
     notify_time DATETIME,
-    FOREIGN KEY (task_id) REFERENCES Tasks(id),
-    FOREIGN KEY (user_id) REFERENCES Users(id)
+
+    sent BIT DEFAULT 0,
+    is_read BIT DEFAULT 0,
+
+    created_at DATETIME DEFAULT GETDATE(),
+
+    CONSTRAINT FK_Notification_Task
+        FOREIGN KEY (task_id) REFERENCES Tasks(id),
+
+    CONSTRAINT FK_Notification_User
+        FOREIGN KEY (user_id) REFERENCES Users(id)
 );
 
 -- =========================
@@ -69,6 +85,8 @@ CREATE TABLE Files (
     file_type NVARCHAR(50),
     created_at DATETIME DEFAULT GETDATE(),
     path NVARCHAR(200),
-    FOREIGN KEY (user_id) REFERENCES Users(id)
+
+    CONSTRAINT FK_File_User
+        FOREIGN KEY (user_id) REFERENCES Users(id)
 );
 GO

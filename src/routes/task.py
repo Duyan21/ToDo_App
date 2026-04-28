@@ -4,7 +4,7 @@ from src.utils.decorators.check_execute_time import check_execution_time
 from src.utils.decorators.logging import log_api_decorator
 from src.utils.decorators.require_auth import require_auth
 from flask import Blueprint, redirect, render_template, request, jsonify, session
-from src.database.models import db, Task, User
+from src.database.models import db, Task, User, Notification
 
 task_bp = Blueprint('task', __name__, template_folder='../../templates')
 
@@ -46,14 +46,31 @@ def create_task():
         title=title,
         description=description,
         deadline=datetime.datetime.strptime(
-            deadline, "%Y-%m-%d") if deadline else None,
+            deadline, "%Y-%m-%dT%H:%M"
+        ) if deadline else None,
         priority=priority,
         reminder_minutes=int(reminder_minutes),
         status="Pending",
-        created_at=datetime.datetime.now(datetime.timezone.utc)
+        created_at=datetime.datetime.now()
     )
     db.session.add(new_task)
     db.session.commit()
+
+    if new_task.deadline and new_task.reminder_minutes > 0:
+        notify_time = new_task.deadline - \
+            datetime.timedelta(minutes=new_task.reminder_minutes)
+
+        notification = Notification(
+            user_id=new_task.user_id,
+            task_id=new_task.id,
+            type="REMINDER",
+            message=f"Task '{new_task.title}' sắp đến hạn",
+            notify_time=notify_time,
+            sent=False
+        )
+
+        db.session.add(notification)
+        db.session.commit()
 
     return jsonify({"message": "Task created successfully"})
 
@@ -92,7 +109,7 @@ def get_tasks():
     filters = {
         'completed': lambda q: q.filter_by(status='Completed'),
         'pending': lambda q: q.filter_by(status='Pending'),
-        'overdue': lambda q: q.filter(Task.deadline < datetime.datetime.now(datetime.timezone.utc), Task.status == 'Pending')
+        'overdue': lambda q: q.filter(Task.deadline < datetime.datetime.now(), Task.status == 'Pending')
     }
 
     query = filters.get(filter_type, lambda q: q)(query)
@@ -100,10 +117,10 @@ def get_tasks():
     tasks = query.all()
 
     priority_order = {
-        'High': 0, 
-        'Medium': 1, 
+        'High': 0,
+        'Medium': 1,
         'Low': 2
-        }
+    }
     tasks = sorted(tasks, key=lambda t: (
         priority_order.get(t.priority), t.created_at))
 
@@ -137,11 +154,32 @@ def edit_task(task_id):
         task.description = data['description']
     if 'deadline' in data:
         task.deadline = datetime.datetime.strptime(
-            data['deadline'], "%Y-%m-%d") if data['deadline'] else None
+            data['deadline'], "%Y-%m-%dT%H:%M") if data['deadline'] else None
     if 'priority' in data:
         task.priority = data['priority']
     if 'reminder_minutes' in data:
         task.reminder_minutes = int(data['reminder_minutes'])
+
+    Notification.query.filter_by(
+        task_id=task.id,
+        type="REMINDER",
+        sent=False
+    ).delete()
+
+    if task.deadline and task.reminder_minutes > 0:
+        notify_time = task.deadline - \
+            datetime.timedelta(minutes=task.reminder_minutes)
+
+        new_notification = Notification(
+            user_id=task.user_id,
+            task_id=task.id,
+            type="REMINDER",
+            message=f"Task '{task.title}' sắp đến hạn",
+            notify_time=notify_time,
+            sent=False
+        )
+
+        db.session.add(new_notification)
 
     db.session.commit()
     return jsonify({"message": "Task updated successfully"})
@@ -156,6 +194,76 @@ def delete_task(task_id):
     if not task:
         return jsonify({"error": "Task không tồn tại"}), 404
 
+    Notification.query.filter_by(task_id=task.id).delete()
+
     db.session.delete(task)
     db.session.commit()
+
     return jsonify({"message": "Task deleted successfully"})
+
+
+@task_bp.route('/api/notifications', methods=['GET'])
+@require_auth
+def get_notifications():
+    user_id = session.get('user_id')
+
+    now = datetime.datetime.now()
+
+    notifications = Notification.query.join(Task).filter(
+        Notification.user_id == user_id,
+        Notification.notify_time <= now,
+        Notification.sent == True,
+        Task.status != "Completed",
+        (
+            (Notification.type == "OVERDUE") |
+            ((Notification.type == "REMINDER") & (Task.deadline >= now))
+        )
+    ).order_by(Notification.created_at.desc()).all()
+
+    return jsonify({
+        "notifications": [
+            {
+                "id": n.id,
+                "message": (
+                    f"Task '{n.task.title}' đã quá hạn"
+                    if n.task and n.task.deadline and n.task.deadline < now
+                    else n.message
+                ),
+                "type": (
+                    "OVERDUE"
+                    if n.task and n.task.deadline and n.task.deadline < now
+                    else n.type
+                ),
+                "is_read": n.is_read
+            } for n in notifications
+        ]
+    })
+
+
+@task_bp.route('/api/notifications/<int:id>/read', methods=['PATCH'])
+@require_auth
+def mark_read(id):
+    n = Notification.query.get(id)
+
+    if not n:
+        return jsonify({"error": "Not found"}), 404
+
+    n.is_read = True
+    db.session.commit()
+
+    return jsonify({"message": "ok"})
+
+
+@task_bp.route('/api/notifications/read-all', methods=['PATCH'])
+@require_auth
+def mark_all_read():
+    user_id = session.get('user_id')
+
+    Notification.query.filter_by(
+        user_id=user_id,
+        is_read=False
+    ).update({"is_read": True})
+
+    db.session.commit()
+
+    return jsonify({"message": "ok"})
