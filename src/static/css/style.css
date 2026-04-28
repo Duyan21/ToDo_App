@@ -356,3 +356,25 @@ h2 {
     color: #333;
     margin-bottom: 15px;
 }
+
+.unread {
+  background: #ffecec;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.overdue {
+  background-color: #ffe5e5;
+  border-left: 4px solid red;
+  color: #b30000;
+}
+
+.custom-checkbox {
+  width: 18px;
+  height: 18px;
+  cursor: pointer;
+}
+
+.custom-checkbox:checked {
+  accent-color: #28a745;
+}
